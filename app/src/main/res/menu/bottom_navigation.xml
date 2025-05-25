@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_current"
+        android:icon="@drawable/ic_sunny"
+        android:title="@string/nav_current" />
+    <item
+        android:id="@+id/nav_forecast"
+        android:icon="@drawable/ic_cloudy"
+        android:title="@string/nav_forecast" />
+    <item
+        android:id="@+id/nav_music"
+        android:icon="@drawable/ic_music"
+        android:title="@string/nav_music" />
+    <item
+        android:id="@+id/nav_diary"
+        android:icon="@drawable/ic_diary"
+        android:title="@string/nav_diary" />
+</menu>
