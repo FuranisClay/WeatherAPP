@@ -25,6 +25,7 @@
         <activity android:name=".activity.CitySelectorActivity"/>
         <activity android:name="com.furan.activity.WeatherDetailActivity" />
         <activity android:name=".activity.PlaylistActivity" />
+        <activity android:name=".activity.LoginActivity"/>
         <activity
             android:name="com.furan.activity.DiaryEditorActivity"
             android:exported="false" />

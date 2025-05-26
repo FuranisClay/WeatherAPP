@@ -1,15 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btn_choose_music_folder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="选择音乐文件夹" />
-</LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_choose_music_folder"
+            android:text="选择音乐文件夹"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/btn_user_management"
+            android:text="用户管理"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- 登录用户信息布局 -->
+        <LinearLayout
+            android:id="@+id/layout_user_info"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone"
+            android:background="#EEEEEE"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:text="用户名: "
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tv_user_email"
+                android:text="邮箱: "
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tv_login_time"
+                android:text="登录时间: "
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btn_logout"
+                android:text="退出登录"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
