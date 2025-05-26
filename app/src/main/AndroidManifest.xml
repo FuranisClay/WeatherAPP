@@ -19,9 +19,10 @@
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="你的高德APIKey" />
+            android:value="06e2ac8329f1b353d27207b06a6e8f01" />
 
         <activity android:name=".activity.CitySelectorActivity"/>
+        <activity android:name="com.furan.activity.WeatherDetailActivity" />
 
         <activity
             android:name="com.furan.activity.DiaryEditorActivity"

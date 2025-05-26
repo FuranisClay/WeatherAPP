@@ -1,13 +1,17 @@
 package com.furan.adapter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.furan.R;
+import com.furan.activity.WeatherDetailActivity;
 import com.furan.model.DailyWeatherData;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +42,21 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<DailyWeatherAdapte
         holder.ivWeatherIcon.setImageResource(data.getIconRes());
         holder.tvWeatherDesc.setText(data.getDescription());
         holder.tvTemperatureRange.setText(data.getTempMin() + " / " + data.getTempMax());
+        // 点击箭头跳转
+        // 点击箭头跳转详情
+        holder.ivArrow.setOnClickListener(v -> {
+            Context context = v.getContext();
+            Intent intent = new Intent(context, WeatherDetailActivity.class);
+            intent.putExtra("date", data.getDate());
+            intent.putExtra("week", data.getWeek());
+            intent.putExtra("iconRes", data.getIconRes());
+            intent.putExtra("description", data.getDescription());
+            intent.putExtra("tempRange", data.getTempMin() + " / " + data.getTempMax());
+            context.startActivity(intent);
+        });
+
     }
+
 
     @Override
     public int getItemCount() {
@@ -47,7 +65,7 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<DailyWeatherAdapte
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvDate, tvWeek, tvWeatherDesc, tvTemperatureRange;
-        ImageView ivWeatherIcon;
+        ImageView ivWeatherIcon, ivArrow;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -56,6 +74,7 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<DailyWeatherAdapte
             tvWeatherDesc = itemView.findViewById(R.id.tv_weather_desc);
             tvTemperatureRange = itemView.findViewById(R.id.tv_temperature_range);
             ivWeatherIcon = itemView.findViewById(R.id.iv_weather_icon);
+            ivArrow = itemView.findViewById(R.id.iv_arrow);
         }
     }
 }

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,13 +16,17 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.furan.activity.CitySelectorActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
+import com.furan.fragment.DiaryFragment;
+import com.furan.fragment.MusicPlayerFragment;
 import com.furan.fragment.WeatherCurrentFragment;
 import com.furan.fragment.WeatherForecastFragment;
-import com.furan.fragment.MusicPlayerFragment;
-import com.furan.fragment.DiaryFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity implements
         BottomNavigationView.OnNavigationItemSelectedListener,
@@ -40,15 +43,29 @@ public class MainActivity extends AppCompatActivity implements
 
     private ViewPagerAdapter adapter;
 
+    // 高德定位客户端
+    private AMapLocationClient locationClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 隐私合规接口，必须先调用，参数均为true
+        AMapLocationClient.updatePrivacyShow(this, true, true);
+        AMapLocationClient.updatePrivacyAgree(this, true);
+
         initViews();
         setupViewPager();
         setupDrawerLayout();
-        checkLocationPermission();
+
+        if (checkLocationPermission()) {
+            try {
+                startLocation();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private void initViews() {
@@ -97,17 +114,59 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void checkLocationPermission() {
+    private boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
+            return false;
         }
+        return true;
+    }
+
+    // 高德定位启动
+    private void startLocation() throws Exception {
+        if (locationClient == null) {
+            locationClient = new AMapLocationClient(getApplicationContext());
+            AMapLocationClientOption option = new AMapLocationClientOption();
+
+            option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Battery_Saving);
+            option.setOnceLocation(true);  // 一次定位
+            option.setNeedAddress(true);   // 返回地址信息
+
+            locationClient.setLocationOption(option);
+
+            locationClient.setLocationListener(new AMapLocationListener() {
+                @Override
+                public void onLocationChanged(AMapLocation amapLocation) {
+                    if (amapLocation != null) {
+                        if (amapLocation.getErrorCode() == 0) {
+                            String city = amapLocation.getCity();
+                            if (city != null && !city.isEmpty()) {
+                                city = city.replace("市", "").trim();
+                                updateCityForFragments(city);
+                            }
+                        } else {
+                            Toast.makeText(MainActivity.this,
+                                    "定位失败：" + amapLocation.getErrorInfo(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    // 定位结束后关闭客户端
+                    if (locationClient != null) {
+                        locationClient.stopLocation();
+                        locationClient.onDestroy();
+                        locationClient = null;
+                    }
+                }
+            });
+        }
+        locationClient.startLocation();
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull android.view.MenuItem item) {
         int itemId = item.getItemId();
 
         if (itemId == R.id.nav_current) {
@@ -132,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
         if (toggle.onOptionsItemSelected(item)) {
             return true;
         }
@@ -152,19 +211,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void updateCityForFragments(String city) {
+        // 更新当前天气fragment
         Fragment currentFragment = adapter.getFragment(0);
         if (currentFragment instanceof WeatherCurrentFragment) {
             ((WeatherCurrentFragment) currentFragment).updateCity(city);
         }
 
+        // 更新天气预报fragment
         Fragment forecastFragment = adapter.getFragment(1);
         if (forecastFragment instanceof WeatherForecastFragment) {
             ((WeatherForecastFragment) forecastFragment).updateCity(city);
         }
     }
-
-
-
 
     private static class ViewPagerAdapter extends FragmentStateAdapter {
         private final Fragment[] fragments = new Fragment[4];
@@ -204,6 +262,27 @@ public class MainActivity extends AppCompatActivity implements
 
         public Fragment getFragment(int position) {
             return fragments[position];
+        }
+    }
+
+    // 权限请求回调
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                try {
+                    startLocation();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                Toast.makeText(this, "需要位置权限才能获取当前城市", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
