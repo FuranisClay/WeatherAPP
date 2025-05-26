@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">天气预报</string>
+    <string name="app_name">天记</string>
 
     <!-- 导航相关 -->
     <string name="navigation_drawer_open">打开导航抽屉</string>

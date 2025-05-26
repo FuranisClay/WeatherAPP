@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.ACCESS_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
 
 
@@ -13,7 +15,6 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WeatherAPP">
 
@@ -23,19 +24,20 @@
 
         <activity android:name=".activity.CitySelectorActivity"/>
         <activity android:name="com.furan.activity.WeatherDetailActivity" />
-
+        <activity android:name=".activity.PlaylistActivity" />
         <activity
             android:name="com.furan.activity.DiaryEditorActivity"
             android:exported="false" />
-        <activity
-            android:name="com.furan.MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.WeatherAPP">
+        <activity android:name=".activity.SplashActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name="com.furan.MainActivity" />
+
 
     </application>
 </manifest>

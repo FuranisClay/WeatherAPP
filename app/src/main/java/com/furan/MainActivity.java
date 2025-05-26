@@ -3,6 +3,7 @@ package com.furan;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.amap.api.location.AMapLocationListener;
 import com.furan.activity.CitySelectorActivity;
 import com.furan.fragment.DiaryFragment;
 import com.furan.fragment.MusicPlayerFragment;
+import com.furan.fragment.SettingsFragment;
 import com.furan.fragment.WeatherCurrentFragment;
 import com.furan.fragment.WeatherForecastFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -97,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements
                         break;
                     case 3:
                         bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        break;
+                    case 4:
+                        bottomNavigation.setSelectedItemId(R.id.nav_settings);
                         break;
                 }
             }
@@ -177,11 +182,11 @@ public class MainActivity extends AppCompatActivity implements
             viewPager.setCurrentItem(2);
         } else if (itemId == R.id.nav_diary) {
             viewPager.setCurrentItem(3);
+        } else if (itemId == R.id.nav_settings) {
+            viewPager.setCurrentItem(4);
         } else if (itemId == R.id.nav_city) {
             Intent intent = new Intent(this, CitySelectorActivity.class);
             startActivityForResult(intent, REQUEST_CODE_CITY_SELECTOR);
-        } else if (itemId == R.id.nav_settings) {
-            Toast.makeText(this, "设置页面", Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.nav_about) {
             Toast.makeText(this, "关于本应用", Toast.LENGTH_SHORT).show();
         }
@@ -225,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private static class ViewPagerAdapter extends FragmentStateAdapter {
-        private final Fragment[] fragments = new Fragment[4];
+        private final Fragment[] fragments = new Fragment[5]; // 5个fragment
 
         public ViewPagerAdapter(@NonNull AppCompatActivity activity) {
             super(activity);
@@ -247,6 +252,9 @@ public class MainActivity extends AppCompatActivity implements
                     break;
                 case 3:
                     fragment = new DiaryFragment();
+                    break;
+                case 4:
+                    fragment = new SettingsFragment();
                     break;
                 default:
                     fragment = new WeatherCurrentFragment();

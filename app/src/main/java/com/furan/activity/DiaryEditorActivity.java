@@ -53,7 +53,6 @@ public class DiaryEditorActivity extends AppCompatActivity {
 
         if (diaryId != -1) {
             isEditMode = true;
-            // 这里不能用 setTitle()，改用 toolbar.setTitle 或自定义 TextView 显示标题
             Toolbar toolbar = findViewById(R.id.toolbar);
             toolbar.setTitle("编辑日记");
             loadDiaryData();
