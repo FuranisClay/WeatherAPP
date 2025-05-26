@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 用户信息显示 -->
+        <TextView
+            android:id="@+id/tv_user_info"
+            android:text="当前未登录"
+            android:textSize="18sp"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- 登录按钮 -->
+        <Button
+            android:id="@+id/btn_login"
+            android:text="登录"
+            android:layout_width="match_parent"
+            android:layout_marginTop="30dp"
+            android:layout_height="wrap_content"/>
+
+        <!-- 切换用户按钮 -->
+        <Button
+            android:id="@+id/btn_switch_user"
+            android:text="切换用户"
+            android:layout_width="match_parent"
+            android:layout_marginTop="16dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <!-- 退出登录按钮 -->
+        <Button
+            android:id="@+id/btn_logout"
+            android:text="退出登录"
+            android:layout_width="match_parent"
+            android:layout_marginTop="16dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <!-- 占位 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- 选择音乐目录按钮 -->
+        <Button
+            android:id="@+id/btn_choose_music_folder"
+            android:text="选择音乐文件夹"
+            android:layout_width="match_parent"
+            android:layout_marginTop="30dp"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+</ScrollView>
