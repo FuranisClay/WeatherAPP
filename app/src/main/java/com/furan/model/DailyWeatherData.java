@@ -8,6 +8,9 @@ public class DailyWeatherData {
     private String tempMin;
     private String tempMax;
 
+    private String iconCode;
+
+
     public DailyWeatherData(String date, String week, int iconRes,
                             String description, String tempMin, String tempMax) {
         this.date = date;

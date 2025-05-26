@@ -2,32 +2,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/tv_city_name"
-        android:layout_width="match_parent"
+        android:layout_width="377dp"
         android:layout_height="wrap_content"
-        android:text="北京"
-        android:textColor="@color/primary_text"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:text="城市名称"
+        android:textColor="#333"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/tv_city_english"
-        android:layout_width="match_parent"
+        android:layout_width="380dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Beijing"
-        android:textColor="@color/secondary_text"
+        android:text="City English"
+        android:textColor="#666"
         android:textSize="14sp" />
 
-    <View
+    <!-- 空视图 -->
+    <TextView
+        android:id="@+id/tv_empty_view"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="12dp"
-        android:background="@color/divider" />
-
+        android:layout_height="wrap_content"
+        android:text="没有找到匹配的城市"
+        android:textSize="16sp"
+        android:textColor="#888"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="20dp"/>
 </LinearLayout>

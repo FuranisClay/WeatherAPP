@@ -1,24 +1,46 @@
 package com.furan.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.furan.R;
 import com.furan.adapter.HourlyWeatherAdapter;
 import com.furan.model.HourlyWeatherData;
-import java.util.ArrayList;
+import com.furan.network.WeatherApiService;
+
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HourlyForecastFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private HourlyWeatherAdapter adapter;
+
+    private ExecutorService executorService;
+    private Handler mainHandler;
+    private WeatherApiService apiService;
+
+    private String currentCity = "北京";
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        executorService = Executors.newSingleThreadExecutor();
+        mainHandler = new Handler(Looper.getMainLooper());
+        apiService = new WeatherApiService();
+    }
 
     @Nullable
     @Override
@@ -30,31 +52,40 @@ public class HourlyForecastFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initViews(view);
+        recyclerView = view.findViewById(R.id.rv_hourly_forecast);
+        adapter = new HourlyWeatherAdapter();
+
+        // 这里改为纵向排列
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+
+        recyclerView.setAdapter(adapter);
+
         loadHourlyData();
     }
 
-    private void initViews(View view) {
-        recyclerView = view.findViewById(R.id.rv_hourly_forecast);
-        adapter = new HourlyWeatherAdapter();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(adapter);
+    private void loadHourlyData() {
+        executorService.execute(() -> {
+            try {
+                List<HourlyWeatherData> hourlyData = apiService.getHourlyForecast(currentCity);
+                mainHandler.post(() -> adapter.updateData(hourlyData));
+            } catch (Exception e) {
+                mainHandler.post(() -> Toast.makeText(getContext(), "获取小时预报失败", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
-    private void loadHourlyData() {
-        // 模拟24小时数据
-        List<HourlyWeatherData> hourlyData = new ArrayList<>();
-
-        for (int i = 0; i < 24; i++) {
-            String time = String.format("%02d:00", i);
-            int temp = 20 + (int)(Math.random() * 10);
-            int humidity = 50 + (int)(Math.random() * 30);
-            int iconRes = i % 3 == 0 ? R.drawable.ic_sunny :
-                    i % 3 == 1 ? R.drawable.ic_cloudy : R.drawable.ic_light_rain;
-
-            hourlyData.add(new HourlyWeatherData(time, iconRes, temp + "°", humidity + "%"));
+    public void setCurrentCity(String city) {
+        if (city != null && !city.isEmpty() && !city.equals(currentCity)) {
+            currentCity = city;
+            loadHourlyData();
         }
+    }
 
-        adapter.updateData(hourlyData);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (executorService != null) {
+            executorService.shutdown();
+        }
     }
 }

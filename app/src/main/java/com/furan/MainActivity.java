@@ -1,9 +1,12 @@
 package com.furan;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +16,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.furan.activity.CitySelectorActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.furan.fragment.WeatherCurrentFragment;
@@ -25,12 +30,15 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final int REQUEST_CODE_CITY_SELECTOR = 2001;
 
     private DrawerLayout drawerLayout;
     private ViewPager2 viewPager;
     private BottomNavigationView bottomNavigation;
     private NavigationView navigationView;
     private ActionBarDrawerToggle toggle;
+
+    private ViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void setupViewPager() {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(this);
+        adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -110,8 +118,16 @@ public class MainActivity extends AppCompatActivity implements
             viewPager.setCurrentItem(2);
         } else if (itemId == R.id.nav_diary) {
             viewPager.setCurrentItem(3);
+        } else if (itemId == R.id.nav_city) {
+            Intent intent = new Intent(this, CitySelectorActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_CITY_SELECTOR);
+        } else if (itemId == R.id.nav_settings) {
+            Toast.makeText(this, "设置页面", Toast.LENGTH_SHORT).show();
+        } else if (itemId == R.id.nav_about) {
+            Toast.makeText(this, "关于本应用", Toast.LENGTH_SHORT).show();
         }
 
+        drawerLayout.closeDrawers();
         return true;
     }
 
@@ -123,7 +139,36 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    // 处理 CitySelectorActivity 返回的城市名
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CITY_SELECTOR && resultCode == RESULT_OK && data != null) {
+            String selectedCity = data.getStringExtra("selected_city");
+            if (selectedCity != null) {
+                updateCityForFragments(selectedCity);
+            }
+        }
+    }
+
+    private void updateCityForFragments(String city) {
+        Fragment currentFragment = adapter.getFragment(0);
+        if (currentFragment instanceof WeatherCurrentFragment) {
+            ((WeatherCurrentFragment) currentFragment).updateCity(city);
+        }
+
+        Fragment forecastFragment = adapter.getFragment(1);
+        if (forecastFragment instanceof WeatherForecastFragment) {
+            ((WeatherForecastFragment) forecastFragment).updateCity(city);
+        }
+    }
+
+
+
+
     private static class ViewPagerAdapter extends FragmentStateAdapter {
+        private final Fragment[] fragments = new Fragment[4];
+
         public ViewPagerAdapter(@NonNull AppCompatActivity activity) {
             super(activity);
         }
@@ -131,23 +176,34 @@ public class MainActivity extends AppCompatActivity implements
         @NonNull
         @Override
         public Fragment createFragment(int position) {
+            Fragment fragment;
             switch (position) {
                 case 0:
-                    return new WeatherCurrentFragment();
+                    fragment = new WeatherCurrentFragment();
+                    break;
                 case 1:
-                    return new WeatherForecastFragment();
+                    fragment = new WeatherForecastFragment();
+                    break;
                 case 2:
-                    return new MusicPlayerFragment();
+                    fragment = new MusicPlayerFragment();
+                    break;
                 case 3:
-                    return new DiaryFragment();
+                    fragment = new DiaryFragment();
+                    break;
                 default:
-                    return new WeatherCurrentFragment();
+                    fragment = new WeatherCurrentFragment();
             }
+            fragments[position] = fragment;
+            return fragment;
         }
 
         @Override
         public int getItemCount() {
-            return 4;
+            return fragments.length;
+        }
+
+        public Fragment getFragment(int position) {
+            return fragments[position];
         }
     }
 }

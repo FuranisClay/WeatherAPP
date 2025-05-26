@@ -18,6 +18,11 @@ public class WeatherForecastFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
 
+    private String currentCity = "北京"; // 默认城市
+
+    private DailyForecastFragment dailyFragment;
+    private HourlyForecastFragment hourlyFragment;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -38,19 +43,34 @@ public class WeatherForecastFragment extends Fragment {
     }
 
     private void setupViewPager() {
+        dailyFragment = new DailyForecastFragment();
+        hourlyFragment = new HourlyForecastFragment();
+
         ForecastPagerAdapter adapter = new ForecastPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            if (position == 0) {
-                tab.setText("7天预报");
-            } else {
-                tab.setText("24小时预报");
-            }
+            tab.setText(position == 0 ? "7天预报" : "24小时预报");
         }).attach();
     }
 
-    private static class ForecastPagerAdapter extends FragmentStateAdapter {
+    /**
+     * 对外方法，更新城市并通知内部子Fragment刷新
+     */
+    public void updateCity(String city) {
+        if (city != null && !city.isEmpty() && !city.equals(currentCity)) {
+            currentCity = city;
+            if (dailyFragment != null) {
+                dailyFragment.setCurrentCity(city);
+            }
+            if (hourlyFragment != null) {
+                hourlyFragment.setCurrentCity(city);
+            }
+        }
+    }
+
+    private class ForecastPagerAdapter extends FragmentStateAdapter {
+
         public ForecastPagerAdapter(@NonNull Fragment fragment) {
             super(fragment);
         }
@@ -59,9 +79,9 @@ public class WeatherForecastFragment extends Fragment {
         @Override
         public Fragment createFragment(int position) {
             if (position == 0) {
-                return new DailyForecastFragment();
+                return dailyFragment;
             } else {
-                return new HourlyForecastFragment();
+                return hourlyFragment;
             }
         }
 

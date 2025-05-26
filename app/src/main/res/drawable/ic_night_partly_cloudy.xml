@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+
+    <!-- 月亮 -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M10 4a6 6 0 1 0 6 6 5 5 0 0 1 -6 -6z"/>
+
+    <!-- 云朵 -->
+    <path
+        android:fillColor="#78909C"
+        android:pathData="M12 14h6a3 3 0 0 0 0 -6 4 4 0 0 0 -8 0 3 3 0 0 0 2 5z"/>
+</vector>

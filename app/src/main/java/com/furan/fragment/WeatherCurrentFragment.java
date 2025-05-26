@@ -10,15 +10,18 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.furan.R;
 import com.furan.adapter.WeatherDetailAdapter;
 import com.furan.model.WeatherData;
 import com.furan.network.WeatherApiService;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,6 +36,8 @@ public class WeatherCurrentFragment extends Fragment {
     private ExecutorService executorService;
     private Handler mainHandler;
     private WeatherApiService apiService;
+
+    private String currentCity = "北京"; // 默认城市
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,31 +78,52 @@ public class WeatherCurrentFragment extends Fragment {
 
     private void setupRecyclerView() {
         detailAdapter = new WeatherDetailAdapter();
-        rvWeatherDetails.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvWeatherDetails.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvWeatherDetails.setAdapter(detailAdapter);
     }
 
+    /**
+     * 对外公开，更新当前城市并刷新天气
+     */
+    public void updateCity(String city) {
+        if (city != null && !city.isEmpty() && !city.equals(currentCity)) {
+            currentCity = city;
+            if (tvLocation != null) {
+                tvLocation.setText(city);
+            }
+            loadWeatherData();
+        }
+    }
+
     private void loadWeatherData() {
-        btnRefresh.setEnabled(false);
+        // UI 线程操作
+        mainHandler.post(() -> btnRefresh.setEnabled(false));
 
         executorService.execute(() -> {
             try {
-                WeatherData weatherData = apiService.getCurrentWeather("北京");
+                WeatherData weatherData = apiService.getCurrentWeather(currentCity);
 
                 mainHandler.post(() -> {
-                    updateUI(weatherData);
-                    btnRefresh.setEnabled(true);
+                    if (isAdded()) { // Fragment附加时才操作UI
+                        updateUI(weatherData);
+                        btnRefresh.setEnabled(true);
+                    }
                 });
             } catch (Exception e) {
+                e.printStackTrace();
                 mainHandler.post(() -> {
-                    Toast.makeText(getContext(), "获取天气数据失败", Toast.LENGTH_SHORT).show();
-                    btnRefresh.setEnabled(true);
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "获取天气数据失败", Toast.LENGTH_SHORT).show();
+                        btnRefresh.setEnabled(true);
+                    }
                 });
             }
         });
     }
 
     private void updateUI(WeatherData weatherData) {
+        if (weatherData == null) return;
+
         tvLocation.setText(weatherData.getLocation());
         tvTemperature.setText(weatherData.getTemperature() + "°C");
         tvWeatherDesc.setText(weatherData.getDescription());
@@ -105,33 +131,31 @@ public class WeatherCurrentFragment extends Fragment {
         tvUpdateTime.setText("更新时间: " + weatherData.getUpdateTime());
         tvAqi.setText(weatherData.getAqiText());
 
-        // 根据天气状况设置图标
         setWeatherIcon(weatherData.getWeatherCode());
 
-        // 更新详细信息
         detailAdapter.updateData(weatherData.getDetailList());
     }
 
     private void setWeatherIcon(int weatherCode) {
-        int iconRes = R.drawable.ic_sunny; // 默认晴天图标
+        int iconRes = R.drawable.ic_sunny; // 默认晴天
 
         switch (weatherCode) {
-            case 0: // 晴
+            case 0:
                 iconRes = R.drawable.ic_sunny;
                 break;
-            case 1: // 多云
+            case 1:
                 iconRes = R.drawable.ic_cloudy;
                 break;
-            case 2: // 阴
+            case 2:
                 iconRes = R.drawable.ic_overcast;
                 break;
-            case 3: // 小雨
+            case 3:
                 iconRes = R.drawable.ic_light_rain;
                 break;
-            case 4: // 中雨
+            case 4:
                 iconRes = R.drawable.ic_moderate_rain;
                 break;
-            case 5: // 大雨
+            case 5:
                 iconRes = R.drawable.ic_heavy_rain;
                 break;
         }
@@ -140,10 +164,26 @@ public class WeatherCurrentFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // 断开视图引用，防止泄露
+        tvLocation = null;
+        tvTemperature = null;
+        tvWeatherDesc = null;
+        tvTempRange = null;
+        tvUpdateTime = null;
+        tvAqi = null;
+        ivWeatherIcon = null;
+        btnRefresh = null;
+        rvWeatherDetails = null;
+        detailAdapter = null;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if (executorService != null) {
-            executorService.shutdown();
+            executorService.shutdownNow();
         }
     }
 }

@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.furan.R;
 import com.furan.adapter.DailyWeatherAdapter;
 import com.furan.model.DailyWeatherData;
+import com.furan.network.WeatherApiService;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,9 @@ public class DailyForecastFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private DailyWeatherAdapter adapter;
+
+    // 新增当前城市变量，默认北京
+    private String currentCity = "北京";
 
     @Nullable
     @Override
@@ -31,7 +36,7 @@ public class DailyForecastFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
-        loadForecastData();
+        loadForecastData(currentCity);
     }
 
     private void initViews(View view) {
@@ -41,18 +46,26 @@ public class DailyForecastFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    private void loadForecastData() {
-        // 模拟数据，实际应从API获取
-        List<DailyWeatherData> dailyData = new ArrayList<>();
+    private void loadForecastData(String city) {
+        new Thread(() -> {
+            try {
+                WeatherApiService apiService = new WeatherApiService();
+                List<DailyWeatherData> dailyData = apiService.getDailyForecast(city);
 
-        dailyData.add(new DailyWeatherData("今天", "周一", R.drawable.ic_sunny, "晴", "18°", "28°"));
-        dailyData.add(new DailyWeatherData("明天", "周二", R.drawable.ic_cloudy, "多云", "16°", "26°"));
-        dailyData.add(new DailyWeatherData("后天", "周三", R.drawable.ic_light_rain, "小雨", "14°", "22°"));
-        dailyData.add(new DailyWeatherData("05/25", "周四", R.drawable.ic_overcast, "阴", "12°", "20°"));
-        dailyData.add(new DailyWeatherData("05/26", "周五", R.drawable.ic_sunny, "晴", "15°", "25°"));
-        dailyData.add(new DailyWeatherData("05/27", "周六", R.drawable.ic_cloudy, "多云", "17°", "27°"));
-        dailyData.add(new DailyWeatherData("05/28", "周日", R.drawable.ic_light_rain, "小雨", "16°", "24°"));
+                // UI线程更新数据
+                requireActivity().runOnUiThread(() -> adapter.updateData(dailyData));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
-        adapter.updateData(dailyData);
+
+    // 新增方法，外部调用更新城市并刷新数据
+    public void setCurrentCity(String city) {
+        if (city != null && !city.isEmpty() && !city.equals(currentCity)) {
+            currentCity = city;
+            loadForecastData(currentCity);
+        }
     }
 }

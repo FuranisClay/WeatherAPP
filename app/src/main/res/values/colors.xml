@@ -53,7 +53,7 @@
 
     <!-- 空气质量颜色 -->
     <color name="aqi_excellent">#00E400</color>
-    <color name="aqi_good">#FFFF00</color>
+    <color name="aqi_good">#878700</color>
     <color name="aqi_light_pollution">#FF7E00</color>
     <color name="aqi_moderate_pollution">#FF0000</color>
     <color name="aqi_heavy_pollution">#8F3F97</color>

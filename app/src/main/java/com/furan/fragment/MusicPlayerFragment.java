@@ -50,28 +50,28 @@ public class MusicPlayerFragment extends Fragment {
     }
 
     private void initViews(View view) {
-//        ivAlbumCover = view.findViewById(R.id.iv_album_cover);
-//        tvSongTitle = view.findViewById(R.id.tv_song_title);
-//        tvArtist = view.findViewById(R.id.tv_artist);
-//        tvCurrentTime = view.findViewById(R.id.tv_current_time);
-//        tvTotalTime = view.findViewById(R.id.tv_total_time);
-//        seekBar = view.findViewById(R.id.seek_bar);
-//
-//        btnPlayPause = view.findViewById(R.id.btn_play_pause);
-//        btnPrevious = view.findViewById(R.id.btn_previous);
-//        btnNext = view.findViewById(R.id.btn_next);
-//        btnRewind = view.findViewById(R.id.btn_rewind);
-//        btnFastForward = view.findViewById(R.id.btn_fast_forward);
-//        btnPlaylist = view.findViewById(R.id.btn_playlist);
-//        btnRepeat = view.findViewById(R.id.btn_repeat);
-//        btnShuffle = view.findViewById(R.id.btn_shuffle);
+        ivAlbumCover = view.findViewById(R.id.iv_album_cover);
+        tvSongTitle = view.findViewById(R.id.tv_song_title);
+        tvArtist = view.findViewById(R.id.tv_artist);
+        tvCurrentTime = view.findViewById(R.id.tv_current_time);
+        tvTotalTime = view.findViewById(R.id.tv_total_time);
+        seekBar = view.findViewById(R.id.seek_bar);
+
+        btnPlayPause = view.findViewById(R.id.btn_play_pause);
+        btnPrevious = view.findViewById(R.id.btn_previous);
+        btnNext = view.findViewById(R.id.btn_next);
+        btnRewind = view.findViewById(R.id.btn_rewind);
+        btnFastForward = view.findViewById(R.id.btn_fast_forward);
+        btnPlaylist = view.findViewById(R.id.btn_playlist);
+        btnRepeat = view.findViewById(R.id.btn_repeat);
+        btnShuffle = view.findViewById(R.id.btn_shuffle);
     }
 
     private void initPlaylist() {
         playlist = new ArrayList<>();
-//        playlist.add(new Song("歌曲1", "艺术家1", R.drawable.default_album_cover, ""));
-//        playlist.add(new Song("歌曲2", "艺术家2", R.drawable.default_album_cover, ""));
-//        playlist.add(new Song("歌曲3", "艺术家3", R.drawable.default_album_cover, ""));
+        playlist.add(new Song("歌曲1", "艺术家1", R.drawable.default_album_cover, ""));
+        playlist.add(new Song("歌曲2", "艺术家2", R.drawable.default_album_cover, ""));
+        playlist.add(new Song("歌曲3", "艺术家3", R.drawable.default_album_cover, ""));
     }
 
     private void setupClickListeners() {
@@ -118,7 +118,7 @@ public class MusicPlayerFragment extends Fragment {
         try {
             if (mediaPlayer == null) {
                 // 这里应该加载实际的音频文件
-//                mediaPlayer = MediaPlayer.create(getContext(), R.raw.sample_music);
+                mediaPlayer = MediaPlayer.create(getContext(), R.raw.sample_music);
                 mediaPlayer.setOnCompletionListener(mp -> nextSong());
             }
 

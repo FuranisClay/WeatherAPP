@@ -1,7 +1,6 @@
 package com.furan.activity;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +26,7 @@ public class DiaryEditorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_diary_editor);
 
         initViews();
-        setupToolbar();
+        setupToolbar();    // 不用 setSupportActionBar，改成自定义导航监听
         processIntent();
         setupClickListeners();
     }
@@ -42,10 +41,10 @@ public class DiaryEditorActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        // 设置标题
+        toolbar.setTitle("");
+        // 设置导航图标（记得在你的layout文件中Toolbar里加 android:navigationIcon）
+        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void processIntent() {
@@ -53,13 +52,14 @@ public class DiaryEditorActivity extends AppCompatActivity {
         dateMillis = getIntent().getLongExtra("date", System.currentTimeMillis());
 
         if (diaryId != -1) {
-            // 编辑模式
             isEditMode = true;
-            setTitle("编辑日记");
+            // 这里不能用 setTitle()，改用 toolbar.setTitle 或自定义 TextView 显示标题
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            toolbar.setTitle("编辑日记");
             loadDiaryData();
         } else {
-            // 新建模式
-            setTitle("新建日记");
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            toolbar.setTitle("新建日记");
         }
     }
 
@@ -107,12 +107,4 @@ public class DiaryEditorActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

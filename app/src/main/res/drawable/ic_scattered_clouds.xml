@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+
+    <!-- 前景云 -->
+    <path
+        android:fillColor="#78909C"
+        android:pathData="M8 16h12a4 4 0 0 0 0 -8 5 5 0 0 0 -10 0 4 4 0 0 0 -2 8z"/>
+
+    <!-- 背景云 -->
+    <path
+        android:fillColor="#90A4AE"
+        android:pathData="M4 14h10a3 3 0 0 0 0 -6 4 4 0 0 0 -8 0 3 3 0 0 0 -2 6z"/>
+</vector>

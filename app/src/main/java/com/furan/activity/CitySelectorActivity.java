@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,10 +42,8 @@ public class CitySelectorActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        // 点击返回图标，关闭 Activity
+        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void setupRecyclerView() {
@@ -54,17 +51,20 @@ public class CitySelectorActivity extends AppCompatActivity {
         rvCities.setLayoutManager(new LinearLayoutManager(this));
         rvCities.setAdapter(adapter);
 
+
+
         adapter.setOnCityClickListener(city -> {
             Intent intent = new Intent();
-            intent.putExtra("selected_city", city.getName());
-            setResult(RESULT_OK, intent);
-            finish();
+            intent.putExtra("selected_city", city.getName());  // 把选中的城市名放进Intent
+            setResult(RESULT_OK, intent);   // 设置返回结果
+            finish();                      // 关闭选择城市页面
         });
+
     }
 
     private void loadCityData() {
         cityList = new ArrayList<>();
-        // 添加一些示例城市数据
+        // 示例城市
         cityList.add(new City("北京", "Beijing", "CN"));
         cityList.add(new City("上海", "Shanghai", "CN"));
         cityList.add(new City("广州", "Guangzhou", "CN"));
@@ -110,14 +110,5 @@ public class CitySelectorActivity extends AppCompatActivity {
         }
 
         adapter.updateData(filteredCityList);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
