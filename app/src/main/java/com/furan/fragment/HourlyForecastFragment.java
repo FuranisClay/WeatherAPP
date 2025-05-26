@@ -32,14 +32,14 @@ public class HourlyForecastFragment extends Fragment {
     private Handler mainHandler;
     private WeatherApiService apiService;
 
-    private String currentCity = "北京";
+    private String currentCity = "Beijing";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         executorService = Executors.newSingleThreadExecutor();
         mainHandler = new Handler(Looper.getMainLooper());
-        apiService = new WeatherApiService();
+        apiService = new WeatherApiService(getContext());
     }
 
     @Nullable

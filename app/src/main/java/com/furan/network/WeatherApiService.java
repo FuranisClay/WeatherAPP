@@ -1,7 +1,12 @@
 package com.furan.network;
 
+import android.content.Context;
+
 import com.furan.R;
+import com.furan.database.CityDao;
+import com.furan.database.CityDatabaseHelper;
 import com.furan.model.City;
+import com.furan.model.CityDB;
 import com.furan.model.DailyWeatherData;
 import com.furan.model.HourlyWeatherData;
 import com.furan.model.WeatherData;
@@ -25,6 +30,11 @@ public class WeatherApiService {
     private static final String FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast";
     private static final String AIR_URL = "https://api.openweathermap.org/data/2.5/air_pollution";
 
+    private CityDatabaseHelper cityDbHelper;
+
+    public WeatherApiService(Context context) {
+        cityDbHelper = new CityDatabaseHelper(context);
+    }
     public WeatherData getCurrentWeather(String cityName) throws Exception {
         String location = URLEncoder.encode(convertCityNameToEnglishWithCountry(cityName), "UTF-8");
         String urlString = BASE_URL + "?q=" + location + "&appid=" + API_KEY + "&units=metric&lang=zh_cn";
@@ -126,17 +136,37 @@ public class WeatherApiService {
         cityList.add(new City("西安", "Xi'an", "CN"));
     }
 
+
+
+
     /**
      * 中文城市名转英文城市名(含国家码，构造形如：Beijing,CN)
      * 如果找不到对应城市，则返回原字符串。
      */
     private String convertCityNameToEnglishWithCountry(String cityName) {
-        for (City city : cityList) {
+        if (cityName == null || cityName.isEmpty()) {
+            return cityName;
+        }
+
+        // 从数据库查询对应的城市记录
+        CityDB city = queryCityByChineseName(cityName);
+        if (city != null) {
+            return city.getEnglishName() + "," + city.getCountryCode();
+        } else {
+            // 若数据库无对应记录，则返回原输入
+            return cityName;
+        }
+    }
+
+    private CityDB queryCityByChineseName(String cityName) {
+        List<CityDB> cities = cityDbHelper.getAllCities();  // 你可以考虑写更高效的查询方法
+
+        for (CityDB city : cities) {
             if (city.getName().equals(cityName)) {
-                return city.getEnglishName() + "," + city.getCountryCode();
+                return city;
             }
         }
-        return cityName;
+        return null;
     }
 
 

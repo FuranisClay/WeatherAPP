@@ -18,7 +18,7 @@ public class WeatherForecastFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
 
-    private String currentCity = "北京"; // 默认城市
+    private String currentCity = "Beijing"; // 默认城市
 
     private DailyForecastFragment dailyFragment;
     private HourlyForecastFragment hourlyFragment;

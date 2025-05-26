@@ -37,14 +37,14 @@ public class WeatherCurrentFragment extends Fragment {
     private Handler mainHandler;
     private WeatherApiService apiService;
 
-    private String currentCity = "北京"; // 默认城市
+    private String currentCity = "Beijing"; // 默认城市
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         executorService = Executors.newSingleThreadExecutor();
         mainHandler = new Handler(Looper.getMainLooper());
-        apiService = new WeatherApiService();
+        apiService = new WeatherApiService(getContext());
     }
 
     @Nullable

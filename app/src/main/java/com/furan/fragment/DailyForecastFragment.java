@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.furan.R;
 import com.furan.adapter.DailyWeatherAdapter;
+import com.furan.database.CityDao;
 import com.furan.model.DailyWeatherData;
 import com.furan.network.WeatherApiService;
 
@@ -23,7 +24,7 @@ public class DailyForecastFragment extends Fragment {
     private DailyWeatherAdapter adapter;
 
     // 新增当前城市变量，默认北京
-    private String currentCity = "北京";
+    private String currentCity = "Beijing";
 
     @Nullable
     @Override
@@ -49,7 +50,7 @@ public class DailyForecastFragment extends Fragment {
     private void loadForecastData(String city) {
         new Thread(() -> {
             try {
-                WeatherApiService apiService = new WeatherApiService();
+                WeatherApiService apiService = new WeatherApiService(getContext());
                 List<DailyWeatherData> dailyData = apiService.getDailyForecast(city);
 
                 // UI线程更新数据

@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.furan.database.CityDatabaseHelper;
+import com.furan.model.CityDB;
 import com.google.android.material.textfield.TextInputEditText;
 import com.furan.R;
 import com.furan.adapter.CityAdapter;
@@ -62,23 +65,30 @@ public class CitySelectorActivity extends AppCompatActivity {
 
     }
 
+
     private void loadCityData() {
-        cityList = new ArrayList<>();
-        // 示例城市
-        cityList.add(new City("北京", "Beijing", "CN"));
-        cityList.add(new City("上海", "Shanghai", "CN"));
-        cityList.add(new City("广州", "Guangzhou", "CN"));
-        cityList.add(new City("深圳", "Shenzhen", "CN"));
-        cityList.add(new City("杭州", "Hangzhou", "CN"));
-        cityList.add(new City("南京", "Nanjing", "CN"));
-        cityList.add(new City("武汉", "Wuhan", "CN"));
-        cityList.add(new City("成都", "Chengdu", "CN"));
-        cityList.add(new City("重庆", "Chongqing", "CN"));
-        cityList.add(new City("西安", "Xi'an", "CN"));
+        CityDatabaseHelper dbHelper = new CityDatabaseHelper(this);
+
+        List<CityDB> cityVList = dbHelper.getAllCities();
+        cityList = convertCityVtoCity(cityVList);
 
         filteredCityList = new ArrayList<>(cityList);
         adapter.updateData(filteredCityList);
     }
+
+
+
+    // CityV转City的转换方法
+    private List<City> convertCityVtoCity(List<CityDB> cityVList) {
+        List<City> cityList = new ArrayList<>();
+        for (CityDB cityV : cityVList) {
+            City city = new City(cityV.getName(), cityV.getEnglishName(), cityV.getCountryCode());
+            cityList.add(city);
+        }
+        return cityList;
+    }
+
+
 
     private void setupSearch() {
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -96,6 +106,8 @@ public class CitySelectorActivity extends AppCompatActivity {
     }
 
     private void filterCities(String query) {
+        if (cityList == null) return;
+
         filteredCityList.clear();
 
         if (query.isEmpty()) {
@@ -111,4 +123,5 @@ public class CitySelectorActivity extends AppCompatActivity {
 
         adapter.updateData(filteredCityList);
     }
+
 }
