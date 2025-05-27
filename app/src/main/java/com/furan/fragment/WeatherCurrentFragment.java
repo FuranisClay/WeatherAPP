@@ -62,6 +62,41 @@ public class WeatherCurrentFragment extends Fragment {
         loadWeatherData();
     }
 
+    private void setAqiBackgroundByText(String aqiText) {
+        int bgResId;
+
+        if (aqiText == null) {
+            bgResId = R.drawable.aqi_bg_unknown; // 你可以自己定义一个默认背景
+        } else {
+            switch (aqiText) {
+                case "优":
+                    bgResId = R.drawable.aqi_bg_good;
+                    break;
+                case "良":
+                    bgResId = R.drawable.aqi_bg_moderate;
+                    break;
+                case "轻度污染":
+                    bgResId = R.drawable.aqi_bg_unhealthy_sensitive;
+                    break;
+                case "中度污染":
+                    bgResId = R.drawable.aqi_bg_unhealthy;
+                    break;
+                case "重度污染":
+                    bgResId = R.drawable.aqi_bg_very_unhealthy;
+                    break;
+                default:
+                    bgResId = R.drawable.aqi_bg_unknown;
+                    break;
+            }
+        }
+
+        if (tvAqi != null) {
+            tvAqi.setBackgroundResource(bgResId);
+        }
+    }
+
+
+
     private void initViews(View view) {
         tvLocation = view.findViewById(R.id.tv_location);
         tvTemperature = view.findViewById(R.id.tv_temperature);
@@ -134,7 +169,11 @@ public class WeatherCurrentFragment extends Fragment {
         setWeatherIcon(weatherData.getWeatherCode());
 
         detailAdapter.updateData(weatherData.getDetailList());
+
+        setAqiBackgroundByText(weatherData.getAqiText());
+
     }
+
 
     private void setWeatherIcon(int weatherCode) {
         int iconRes = R.drawable.ic_sunny; // 默认晴天

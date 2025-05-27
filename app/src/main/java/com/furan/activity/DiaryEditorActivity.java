@@ -1,10 +1,21 @@
 package com.furan.activity;
 
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.furan.service.DiaryReminderReceiver;
 import com.google.android.material.textfield.TextInputEditText;
 import com.furan.R;
 import com.furan.database.DiaryDatabaseHelper;
@@ -26,7 +37,7 @@ public class DiaryEditorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_diary_editor);
 
         initViews();
-        setupToolbar();    // 不用 setSupportActionBar，改成自定义导航监听
+        setupToolbar();
         processIntent();
         setupClickListeners();
     }
@@ -49,13 +60,12 @@ public class DiaryEditorActivity extends AppCompatActivity {
         diaryId = getIntent().getLongExtra("diary_id", -1);
         dateMillis = getIntent().getLongExtra("date", System.currentTimeMillis());
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (diaryId != -1) {
             isEditMode = true;
-            Toolbar toolbar = findViewById(R.id.toolbar);
             toolbar.setTitle("编辑日记");
             loadDiaryData();
         } else {
-            Toolbar toolbar = findViewById(R.id.toolbar);
             toolbar.setTitle("新建日记");
         }
     }
@@ -65,6 +75,7 @@ public class DiaryEditorActivity extends AppCompatActivity {
         if (entry != null) {
             etTitle.setText(entry.getTitle());
             etContent.setText(entry.getContent());
+            dateMillis = entry.getDate().getTime(); // 确保提醒时间是日记时间
         }
     }
 
@@ -94,9 +105,12 @@ public class DiaryEditorActivity extends AppCompatActivity {
                 entry.setId(diaryId);
                 dbHelper.updateDiaryEntry(entry);
                 Toast.makeText(this, "日记更新成功", Toast.LENGTH_SHORT).show();
+                setDiaryReminder(entry);
             } else {
-                dbHelper.insertDiaryEntry(entry);
+                long newId = dbHelper.insertDiaryEntry(entry);
+                entry.setId(newId);
                 Toast.makeText(this, "日记保存成功", Toast.LENGTH_SHORT).show();
+                setDiaryReminder(entry);
             }
             finish();
         } catch (Exception e) {
@@ -104,4 +118,27 @@ public class DiaryEditorActivity extends AppCompatActivity {
         }
     }
 
+    private void setDiaryReminder(DiaryEntry entry) {
+        long reminderTime = entry.getDate().getTime();
+        if (reminderTime <= System.currentTimeMillis()) {
+            // 如果时间已过，不设置提醒
+            return;
+        }
+
+        Intent intent = new Intent(this, DiaryReminderReceiver.class);
+        intent.putExtra("diary_id", entry.getId());
+        intent.putExtra("title", entry.getTitle());
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                (int) entry.getId(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, reminderTime, pendingIntent);
+        }
+    }
 }
