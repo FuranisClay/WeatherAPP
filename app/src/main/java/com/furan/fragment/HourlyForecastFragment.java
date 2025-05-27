@@ -32,7 +32,7 @@ public class HourlyForecastFragment extends Fragment {
     private Handler mainHandler;
     private WeatherApiService apiService;
 
-    private String currentCity = "Beijing";
+    private String currentCity = "Shenyang";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

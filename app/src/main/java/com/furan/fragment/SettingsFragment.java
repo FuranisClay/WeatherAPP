@@ -25,6 +25,12 @@ public class SettingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // 返回按钮
+        ImageButton btnBack = view.findViewById(R.id.btn_back);
+        btnBack.setOnClickListener(v -> {
+            requireActivity().onBackPressed();
+        });
+
         Button btnChooseFolder = view.findViewById(R.id.btn_choose_music_folder);
         Button btnUserManagement = view.findViewById(R.id.btn_user_management);
         LinearLayout layoutUserInfo = view.findViewById(R.id.layout_user_info);

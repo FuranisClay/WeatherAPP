@@ -1,23 +1,28 @@
 package com.furan.fragment;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import com.furan.R;
 import com.furan.activity.DiaryEditorActivity;
 import com.furan.adapter.DiaryAdapter;
 import com.furan.database.DiaryDatabaseHelper;
 import com.furan.model.DiaryEntry;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -88,11 +93,30 @@ public class DiaryFragment extends Fragment {
             loadDiaryEntries();
         });
 
+        tvCurrentDate.setOnClickListener(v -> showDatePickerDialog());
+
         fabAddDiary.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), DiaryEditorActivity.class);
             intent.putExtra("date", calendar.getTimeInMillis());
             startActivity(intent);
         });
+    }
+
+    private void showDatePickerDialog() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateDateDisplay();
+                    loadDiaryEntries();
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
     }
 
     private void updateDateDisplay() {
@@ -107,6 +131,6 @@ public class DiaryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadDiaryEntries(); // 从编辑页面返回时刷新数据
+        loadDiaryEntries();
     }
 }

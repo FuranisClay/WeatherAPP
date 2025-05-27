@@ -37,7 +37,7 @@ public class WeatherCurrentFragment extends Fragment {
     private Handler mainHandler;
     private WeatherApiService apiService;
 
-    private String currentCity = "Beijing"; // 默认城市
+    private String currentCity = "Shenyang"; // 默认城市
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

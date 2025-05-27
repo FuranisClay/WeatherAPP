@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="2024年5月22日"
+                android:text="2025年5月27日"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -43,7 +43,6 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_arrow_right"
                 app:tint="@android:color/white" />
-
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -52,7 +51,6 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:padding="8dp" />
-
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -24,7 +24,7 @@ public class DailyForecastFragment extends Fragment {
     private DailyWeatherAdapter adapter;
 
     // 新增当前城市变量，默认北京
-    private String currentCity = "Beijing";
+    private String currentCity = "Shenyang";
 
     @Nullable
     @Override

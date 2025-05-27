@@ -41,9 +41,7 @@ public class DiaryEditorActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        // 设置标题
         toolbar.setTitle("");
-        // 设置导航图标（记得在你的layout文件中Toolbar里加 android:navigationIcon）
         toolbar.setNavigationOnClickListener(v -> finish());
     }
 
