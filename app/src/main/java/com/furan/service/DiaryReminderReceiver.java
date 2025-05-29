@@ -3,6 +3,7 @@ package com.furan.service;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,14 +26,28 @@ public class DiaryReminderReceiver extends BroadcastReceiver {
             }
         }
 
+        // 点击通知跳转的 Intent
+        Intent notificationIntent = new Intent(context, com.furan.activity.DiaryEditorActivity.class);
+        notificationIntent.putExtra("diary_id", diaryId);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);  // 防止异常
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                (int) diaryId,
+                notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
         Notification.Builder builder = new Notification.Builder(context, channelId)
                 .setContentTitle("日记提醒")
-                .setContentText("你有一篇日记待查看：" + title)
+                .setContentText("你有一项提醒事项：" + title)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);  // 设置点击通知跳转
 
         if (notificationManager != null) {
             notificationManager.notify((int) diaryId, builder.build());
         }
     }
 }
+

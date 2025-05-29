@@ -39,6 +39,17 @@
                 android:textColor="@color/secondary_text"
                 android:textSize="12sp" />
 
+            <ImageButton
+                android:id="@+id/btn_delete"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="删除"
+                android:tint="@color/secondary_text"
+                android:layout_marginStart="8dp"
+                />
+
         </LinearLayout>
 
         <TextView

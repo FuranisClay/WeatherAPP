@@ -44,15 +44,32 @@ public class SettingsFragment extends Fragment {
             startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY);
         });
 
+        UserDatabaseHelper dbHelper = new UserDatabaseHelper(requireContext());
+        Cursor cursor = dbHelper.getLoggedInUser();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // 已登录：显示用户信息，隐藏“用户管理”按钮
+            layoutUserInfo.setVisibility(View.VISIBLE);
+            btnUserManagement.setVisibility(View.GONE);  // 关键代码
+
+            tvUserName.setText("用户名: " + cursor.getString(cursor.getColumnIndexOrThrow("name")));
+            tvUserEmail.setText("邮箱: " + cursor.getString(cursor.getColumnIndexOrThrow("email")));
+            tvLoginTime.setText("登录时间: " + cursor.getString(cursor.getColumnIndexOrThrow("loginTime")));
+            cursor.close();
+        } else {
+            // 未登录：隐藏用户信息，显示“用户管理”按钮
+            layoutUserInfo.setVisibility(View.GONE);
+            btnUserManagement.setVisibility(View.VISIBLE);
+        }
+
         btnUserManagement.setOnClickListener(v -> {
-            UserDatabaseHelper dbHelper = new UserDatabaseHelper(requireContext());
-            Cursor cursor = dbHelper.getLoggedInUser();
-            if (cursor != null && cursor.moveToFirst()) {
+            Cursor c = dbHelper.getLoggedInUser();
+            if (c != null && c.moveToFirst()) {
                 layoutUserInfo.setVisibility(View.VISIBLE);
-                tvUserName.setText("用户名: " + cursor.getString(cursor.getColumnIndexOrThrow("name")));
-                tvUserEmail.setText("邮箱: " + cursor.getString(cursor.getColumnIndexOrThrow("email")));
-                tvLoginTime.setText("登录时间: " + cursor.getString(cursor.getColumnIndexOrThrow("loginTime")));
-                cursor.close();
+                tvUserName.setText("用户名: " + c.getString(c.getColumnIndexOrThrow("name")));
+                tvUserEmail.setText("邮箱: " + c.getString(c.getColumnIndexOrThrow("email")));
+                tvLoginTime.setText("登录时间: " + c.getString(c.getColumnIndexOrThrow("loginTime")));
+                c.close();
             } else {
                 layoutUserInfo.setVisibility(View.GONE);
                 startActivity(new Intent(requireContext(), LoginActivity.class));
@@ -60,22 +77,12 @@ public class SettingsFragment extends Fragment {
         });
 
         btnLogout.setOnClickListener(v -> {
-            new UserDatabaseHelper(requireContext()).logout();
+            dbHelper.logout();
             layoutUserInfo.setVisibility(View.GONE);
+            btnUserManagement.setVisibility(View.VISIBLE);  // 退出登录后再显示回来
             Toast.makeText(getContext(), "已退出登录", Toast.LENGTH_SHORT).show();
         });
-
-        UserDatabaseHelper dbHelper = new UserDatabaseHelper(requireContext());
-        Cursor cursor = dbHelper.getLoggedInUser();
-        if (cursor != null && cursor.moveToFirst()) {
-            layoutUserInfo.setVisibility(View.VISIBLE);
-            tvUserName.setText("用户名: " + cursor.getString(cursor.getColumnIndexOrThrow("name")));
-            tvUserEmail.setText("邮箱: " + cursor.getString(cursor.getColumnIndexOrThrow("email")));
-            tvLoginTime.setText("登录时间: " + cursor.getString(cursor.getColumnIndexOrThrow("loginTime")));
-            cursor.close();
-        }
     }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

@@ -164,7 +164,7 @@ public class WeatherCurrentFragment extends Fragment {
         tvWeatherDesc.setText(weatherData.getDescription());
         tvTempRange.setText(weatherData.getTempMin() + "°C ~ " + weatherData.getTempMax() + "°C");
         tvUpdateTime.setText("更新时间: " + weatherData.getUpdateTime());
-        tvAqi.setText(weatherData.getAqiText());
+//        tvAqi.setText(weatherData.getAqiText());
 
         setWeatherIcon(weatherData.getWeatherCode());
 
