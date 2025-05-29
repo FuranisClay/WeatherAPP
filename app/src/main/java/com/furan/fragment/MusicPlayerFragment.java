@@ -27,11 +27,13 @@ import androidx.fragment.app.Fragment;
 
 import com.furan.R;
 import com.furan.activity.PlaylistActivity;
+import com.furan.model.Song;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 public class MusicPlayerFragment extends Fragment {
 
@@ -40,6 +42,7 @@ public class MusicPlayerFragment extends Fragment {
     private SeekBar seekBar;
     private ImageButton btnPrevious, btnPlayPause, btnNext, btnPlaylist;
     private ImageButton btnFastForward, btnRewind;
+    private ImageButton btnShuffle;  // 新增随机按钮
 
     private MediaPlayer mediaPlayer;
     private Handler handler = new Handler();
@@ -48,6 +51,9 @@ public class MusicPlayerFragment extends Fragment {
     private int currentSongIndex = 0;
     private boolean isPlaying = false;
     private boolean isUserSeeking = false;
+
+    private boolean isShuffle = false;  // 是否随机播放标志
+    private Random random = new Random();
 
     private final Runnable updateSeekBarRunnable = new Runnable() {
         @Override
@@ -106,6 +112,8 @@ public class MusicPlayerFragment extends Fragment {
         btnFastForward = view.findViewById(R.id.btn_fast_forward);
         btnRewind = view.findViewById(R.id.btn_rewind);
 
+        btnShuffle = view.findViewById(R.id.btn_shuffle); // 获取随机按钮控件
+
         btnPlaylist.setOnClickListener(v -> openPlaylistActivity());
 
         btnPlayPause.setOnClickListener(v -> {
@@ -137,6 +145,18 @@ public class MusicPlayerFragment extends Fragment {
         btnFastForward.setOnClickListener(v -> fastForward());
 
         btnRewind.setOnClickListener(v -> rewind());
+
+        // 随机按钮点击事件，切换随机状态并更改图标
+        btnShuffle.setOnClickListener(v -> {
+            isShuffle = !isShuffle;
+            if (isShuffle) {
+                btnShuffle.setImageResource(R.drawable.ic_shuffle); // TODO需要准备随机开启图标资源
+                Toast.makeText(getContext(), "随机播放已开启", Toast.LENGTH_SHORT).show();
+            } else {
+                btnShuffle.setImageResource(R.drawable.ic_shuffle); // 随机关闭图标（原图标）
+                Toast.makeText(getContext(), "随机播放已关闭", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -228,117 +248,65 @@ public class MusicPlayerFragment extends Fragment {
             currentSongIndex = 0;
         }
 
-        try {
+        try
+        {
             loadCurrentSong();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    private void openPlaylistActivity() {
-        if (playlist.isEmpty()) {
-            Toast.makeText(getContext(), "播放列表为空", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Intent intent = new Intent(getContext(), PlaylistActivity.class);
-
-        ArrayList<PlaylistActivity.SongParcelable> songsParcelable = new ArrayList<>();
-        for (Song song : playlist) {
-            songsParcelable.add(new PlaylistActivity.SongParcelable(song.getName(), song.getArtist(),  song.getFilePath()));
-        }
-        intent.putParcelableArrayListExtra("playlist", songsParcelable);
-
-        // 用注册的launcher启动，等待结果回调
-        playlistLauncher.launch(intent);
-    }
-
     private void loadDefaultSongs() {
         playlist.clear();
-        playlist.add(new Song("默认歌曲", "默认艺术家", R.drawable.default_album_cover,
-                "android.resource://" + requireContext().getPackageName() + "/" + R.raw.sample_music));
+        playlist.add(new Song("默认歌曲1", "默认艺术家", R.drawable.default_album_cover, null));
+    }
+
+    private void openPlaylistActivity() {
+        Intent intent = new Intent(getContext(), PlaylistActivity.class);
+        ArrayList<String> titles = new ArrayList<>();
+        for (Song song : playlist) {
+            titles.add(song.getTitle());
+        }
+        intent.putStringArrayListExtra("playlist_titles", titles);
+        playlistLauncher.launch(intent);
     }
 
     private void loadCurrentSong() throws IOException {
         if (playlist.isEmpty()) return;
         Song song = playlist.get(currentSongIndex);
-        tvSongTitle.setText(song.getName());
+        tvSongTitle.setText(song.getTitle());
         tvArtist.setText(song.getArtist());
-
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        try {
-            mmr.setDataSource(requireContext(), Uri.parse(song.getFilePath()));
-
-            byte[] artBytes = mmr.getEmbeddedPicture();
-            if (artBytes != null) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);
-                ivAlbumCover.setImageBitmap(bitmap);
-            } else {
-                ivAlbumCover.setImageResource(song.getAlbumCoverResId());
-            }
-
-            String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            if (durationStr != null) {
-                int duration = Integer.parseInt(durationStr);
-                tvTotalTime.setText(formatTime(duration));
-                seekBar.setMax(duration);
-            } else {
-                tvTotalTime.setText("0:00");
-                seekBar.setMax(0);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ivAlbumCover.setImageResource(song.getAlbumCoverResId());
-            tvTotalTime.setText("0:00");
-            seekBar.setMax(0);
-        } finally {
-            mmr.release();
+        ivAlbumCover.setImageResource(song.getAlbumCoverResId());
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
         }
+        mediaPlayer = new MediaPlayer();
+        if (song.getUri() != null) {
+            mediaPlayer.setDataSource(getContext(), Uri.parse(song.getUri()));
+        }
+        mediaPlayer.prepare();
+        seekBar.setMax(mediaPlayer.getDuration());
+        tvTotalTime.setText(formatTime(mediaPlayer.getDuration()));
 
-        tvCurrentTime.setText("0:00");
-        seekBar.setProgress(0);
-
-        handler.removeCallbacks(updateSeekBarRunnable);
+        mediaPlayer.setOnCompletionListener(mp -> {
+            try {
+                nextSong();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void playMusic() {
-        if (playlist.isEmpty()) {
-            Toast.makeText(getContext(), "播放列表为空", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            if (mediaPlayer != null) {
-                releaseMediaPlayer();
-            }
-
-            Song currentSong = playlist.get(currentSongIndex);
-            mediaPlayer = new MediaPlayer();
-
-            Uri uri = Uri.parse(currentSong.getFilePath());
-            mediaPlayer.setDataSource(requireContext(), uri);
-            mediaPlayer.prepare();
-
-            mediaPlayer.setOnCompletionListener(mp -> {
-                try {
-                    nextSong();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-
+        if (mediaPlayer != null) {
             mediaPlayer.start();
             isPlaying = true;
             btnPlayPause.setImageResource(R.drawable.ic_pause);
             handler.post(updateSeekBarRunnable);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "无法播放音乐", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void pauseMusic() {
-        if (mediaPlayer != null && isPlaying) {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             isPlaying = false;
             btnPlayPause.setImageResource(R.drawable.ic_play);
@@ -348,7 +316,11 @@ public class MusicPlayerFragment extends Fragment {
 
     private void nextSong() throws IOException {
         if (playlist.isEmpty()) return;
-        currentSongIndex = (currentSongIndex + 1) % playlist.size();
+        if (isShuffle) {
+            currentSongIndex = random.nextInt(playlist.size());
+        } else {
+            currentSongIndex = (currentSongIndex + 1) % playlist.size();
+        }
         loadCurrentSong();
         playMusic();
     }
@@ -362,78 +334,23 @@ public class MusicPlayerFragment extends Fragment {
 
     private void fastForward() {
         if (mediaPlayer != null) {
-            int newPos = mediaPlayer.getCurrentPosition() + 10000;
-            if (newPos > mediaPlayer.getDuration()) newPos = mediaPlayer.getDuration();
+            int currentPos = mediaPlayer.getCurrentPosition();
+            int newPos = Math.min(currentPos + 5000, mediaPlayer.getDuration());
             mediaPlayer.seekTo(newPos);
-            seekBar.setProgress(newPos);
-            tvCurrentTime.setText(formatTime(newPos));
         }
     }
 
     private void rewind() {
         if (mediaPlayer != null) {
-            int newPos = mediaPlayer.getCurrentPosition() - 10000;
-            if (newPos < 0) newPos = 0;
+            int currentPos = mediaPlayer.getCurrentPosition();
+            int newPos = Math.max(currentPos - 5000, 0);
             mediaPlayer.seekTo(newPos);
-            seekBar.setProgress(newPos);
-            tvCurrentTime.setText(formatTime(newPos));
         }
     }
 
     private String formatTime(int milliseconds) {
-        int totalSeconds = milliseconds / 1000;
-        int minutes = totalSeconds / 60;
-        int seconds = totalSeconds % 60;
-        return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds);
+        int minutes = milliseconds / 1000 / 60;
+        int seconds = (milliseconds / 1000) % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
-
-    private void releaseMediaPlayer() {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-        isPlaying = false;
-        handler.removeCallbacks(updateSeekBarRunnable);
-        btnPlayPause.setImageResource(R.drawable.ic_play);
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        releaseMediaPlayer();
-    }
-
-    // 内部Song类，方便管理
-    private static class Song {
-        private final String name;
-        private final String artist;
-        private final int albumCoverResId;
-        private final String filePath;
-
-        public Song(String name, String artist, int albumCoverResId, String filePath) {
-            this.name = name;
-            this.artist = artist;
-            this.albumCoverResId = albumCoverResId;
-            this.filePath = filePath;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getArtist() {
-            return artist;
-        }
-
-        public int getAlbumCoverResId() {
-            return albumCoverResId;
-        }
-
-        public String getFilePath() {
-            return filePath;
-        }
-    }
-}

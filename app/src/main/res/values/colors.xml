@@ -62,4 +62,8 @@
     <!-- 渐变色 -->
     <color name="gradient_start">#4FC3F7</color>
     <color name="gradient_end">#29B6F6</color>
+
+
+    <color name="background_light">#4FC3F7</color>
+    <color name="background_dark">#172657</color>
 </resources>
