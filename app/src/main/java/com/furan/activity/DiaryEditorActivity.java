@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.furan.R;
 import com.furan.database.DiaryDatabaseHelper;
 import com.furan.model.DiaryEntry;
+import com.furan.model.UserSession;
 import com.furan.service.DiaryReminderReceiver;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -55,6 +56,7 @@ public class DiaryEditorActivity extends AppCompatActivity {
         btnPickTime = findViewById(R.id.btn_pick_time);
         tvSelectedTime = findViewById(R.id.tv_selected_time); // 新增
 
+
         dbHelper = new DiaryDatabaseHelper(this);
         calendar = Calendar.getInstance();
 
@@ -85,7 +87,7 @@ public class DiaryEditorActivity extends AppCompatActivity {
     }
 
     private void loadDiaryData() {
-        DiaryEntry entry = dbHelper.getDiaryEntryById(diaryId);
+        DiaryEntry entry = dbHelper.getDiaryEntryById(diaryId,UserSession.getCurrentUserName());
         if (entry != null) {
             etTitle.setText(entry.getTitle());
             etContent.setText(entry.getContent());
@@ -116,7 +118,7 @@ public class DiaryEditorActivity extends AppCompatActivity {
             return;
         }
 
-        DiaryEntry entry = new DiaryEntry(title, content, new Date(dateMillis));
+        DiaryEntry entry = new DiaryEntry(title, content, new Date(dateMillis), UserSession.getCurrentUserName());
 
         try {
             if (isEditMode) {

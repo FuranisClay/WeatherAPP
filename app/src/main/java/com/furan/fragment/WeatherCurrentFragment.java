@@ -37,7 +37,10 @@ public class WeatherCurrentFragment extends Fragment {
     private Handler mainHandler;
     private WeatherApiService apiService;
 
+    private WeatherData cachedWeatherData = null;
     private String currentCity = "Shenyang"; // 默认城市
+
+    private boolean shouldRefresh = true; // 👉 新增：是否需要刷新标记
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,14 +62,21 @@ public class WeatherCurrentFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
         setupRecyclerView();
-        loadWeatherData();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (shouldRefresh) {
+            loadWeatherData();
+            shouldRefresh = false;
+        }
     }
 
     private void setAqiBackgroundByText(String aqiText) {
         int bgResId;
-
         if (aqiText == null) {
-            bgResId = R.drawable.aqi_bg_unknown; // 你可以自己定义一个默认背景
+            bgResId = R.drawable.aqi_bg_unknown;
         } else {
             switch (aqiText) {
                 case "优":
@@ -89,13 +99,10 @@ public class WeatherCurrentFragment extends Fragment {
                     break;
             }
         }
-
         if (tvAqi != null) {
             tvAqi.setBackgroundResource(bgResId);
         }
     }
-
-
 
     private void initViews(View view) {
         tvLocation = view.findViewById(R.id.tv_location);
@@ -108,7 +115,10 @@ public class WeatherCurrentFragment extends Fragment {
         btnRefresh = view.findViewById(R.id.btn_refresh);
         rvWeatherDetails = view.findViewById(R.id.rv_weather_details);
 
-        btnRefresh.setOnClickListener(v -> loadWeatherData());
+        btnRefresh.setOnClickListener(v -> {
+            shouldRefresh = true; // 👉 点击刷新按钮时，设置需要刷新
+            loadWeatherData();
+        });
     }
 
     private void setupRecyclerView() {
@@ -117,29 +127,30 @@ public class WeatherCurrentFragment extends Fragment {
         rvWeatherDetails.setAdapter(detailAdapter);
     }
 
-    /**
-     * 对外公开，更新当前城市并刷新天气
-     */
     public void updateCity(String city) {
         if (city != null && !city.isEmpty() && !city.equals(currentCity)) {
             currentCity = city;
             if (tvLocation != null) {
                 tvLocation.setText(city);
             }
+            shouldRefresh = true; // 👉 城市切换，标记要刷新
             loadWeatherData();
         }
     }
 
     private void loadWeatherData() {
-        // UI 线程操作
         mainHandler.post(() -> btnRefresh.setEnabled(false));
 
         executorService.execute(() -> {
             try {
                 WeatherData weatherData = apiService.getCurrentWeather(currentCity);
-
                 mainHandler.post(() -> {
-                    if (isAdded()) { // Fragment附加时才操作UI
+                    if (isAdded()) {
+                        if (weatherData.equals(cachedWeatherData)) {
+                            btnRefresh.setEnabled(true);
+                            return;
+                        }
+                        cachedWeatherData = weatherData;
                         updateUI(weatherData);
                         btnRefresh.setEnabled(true);
                     }
@@ -164,20 +175,14 @@ public class WeatherCurrentFragment extends Fragment {
         tvWeatherDesc.setText(weatherData.getDescription());
         tvTempRange.setText(weatherData.getTempMin() + "°C ~ " + weatherData.getTempMax() + "°C");
         tvUpdateTime.setText("更新时间: " + weatherData.getUpdateTime());
-//        tvAqi.setText(weatherData.getAqiText());
 
         setWeatherIcon(weatherData.getWeatherCode());
-
-        detailAdapter.updateData(weatherData.getDetailList());
-
         setAqiBackgroundByText(weatherData.getAqiText());
-
+        detailAdapter.updateData(weatherData.getDetailList());
     }
 
-
     private void setWeatherIcon(int weatherCode) {
-        int iconRes = R.drawable.ic_sunny; // 默认晴天
-
+        int iconRes = R.drawable.ic_sunny;
         switch (weatherCode) {
             case 0:
                 iconRes = R.drawable.ic_sunny;
@@ -198,14 +203,13 @@ public class WeatherCurrentFragment extends Fragment {
                 iconRes = R.drawable.ic_heavy_rain;
                 break;
         }
-
         ivWeatherIcon.setImageResource(iconRes);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // 断开视图引用，防止泄露
+        shouldRefresh = true; // 👉 防止视图销毁后不刷新
         tvLocation = null;
         tvTemperature = null;
         tvWeatherDesc = null;

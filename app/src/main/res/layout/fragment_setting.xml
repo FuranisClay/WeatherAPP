@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -20,7 +21,7 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_left"
-            android:tint="@android:color/white" />
+            app:tint="@android:color/white" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -38,64 +39,88 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:orientation="vertical"
-            android:padding="16dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 切换显示风格开关 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:background="#EEEEEE"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="切换暗黑/浅色模式"
+                    android:textColor="#333333"
+                    android:textSize="16sp" />
+
+                <Switch
+                    android:id="@+id/switch_theme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btn_choose_music_folder"
-                android:text="选择音乐文件夹"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                android:text="选择音乐文件夹" />
 
             <Button
                 android:id="@+id/btn_user_management"
-                android:text="用户管理"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                android:text="用户管理" />
 
             <!-- 登录用户信息布局 -->
             <LinearLayout
                 android:id="@+id/layout_user_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#EEEEEE"
                 android:orientation="vertical"
                 android:padding="16dp"
-                android:visibility="gone"
-                android:background="#EEEEEE"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tv_user_name"
-                    android:text="用户名: "
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="用户名: "
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/tv_user_email"
-                    android:text="邮箱: "
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="邮箱: "
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/tv_login_time"
-                    android:text="登录时间: "
-                    android:textSize="16sp"
-                    android:layout_marginBottom="16dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="登录时间: "
+                    android:textSize="16sp" />
 
                 <Button
                     android:id="@+id/btn_logout"
-                    android:text="退出登录"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:text="退出登录" />
             </LinearLayout>
 
         </LinearLayout>

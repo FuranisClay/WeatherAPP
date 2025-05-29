@@ -21,6 +21,8 @@ import com.furan.activity.DiaryEditorActivity;
 import com.furan.adapter.DiaryAdapter;
 import com.furan.database.DiaryDatabaseHelper;
 import com.furan.model.DiaryEntry;
+import com.furan.model.UserSession;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
@@ -124,7 +126,8 @@ public class DiaryFragment extends Fragment {
     }
 
     private void loadDiaryEntries() {
-        List<DiaryEntry> entries = dbHelper.getDiaryEntriesByDate(calendar.getTime());
+        String currentUser = UserSession.getCurrentUserName(); // 获取当前用户名
+        List<DiaryEntry> entries = dbHelper.getDiaryEntriesByDate(calendar.getTime(), currentUser);
         adapter.updateData(entries);
     }
 

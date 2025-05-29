@@ -1,6 +1,7 @@
 package com.furan.model;
 
 import java.util.List;
+import java.util.Objects;
 
 public class WeatherData {
     private String location;
@@ -38,4 +39,26 @@ public class WeatherData {
     public int getWeatherCode() { return weatherCode; }
     public String getAqiText() { return aqiText; }
     public List<WeatherDetail> getDetailList() { return detailList; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WeatherData that = (WeatherData) o;
+        return temperature == that.temperature &&
+                tempMin == that.tempMin &&
+                tempMax == that.tempMax &&
+                weatherCode == that.weatherCode &&
+                Objects.equals(location, that.location) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(updateTime, that.updateTime) &&
+                Objects.equals(aqiText, that.aqiText) &&
+                Objects.equals(detailList, that.detailList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(location, temperature, description, tempMin, tempMax,
+                updateTime, aqiText, weatherCode, detailList);
+    }
 }

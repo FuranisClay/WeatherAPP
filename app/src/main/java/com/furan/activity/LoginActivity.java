@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.furan.MainActivity;
 import com.furan.R;
 import com.furan.database.UserDatabaseHelper;
+import com.furan.model.UserSession;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -38,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
             new UserDatabaseHelper(this).loginUser(name, email, loginTime);
 
             Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
+            UserSession.setCurrentUserName(name);
             startActivity(new Intent(this, MainActivity.class));
             finish();
         });

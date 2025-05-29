@@ -3,6 +3,7 @@ package com.furan.adapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.UserManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.furan.R;
 import com.furan.activity.DiaryEditorActivity;
 import com.furan.database.DiaryDatabaseHelper;
 import com.furan.model.DiaryEntry;
+import com.furan.model.UserSession;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,7 +67,8 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.ViewHolder> 
                     .setTitle("确认删除")
                     .setMessage("确定要删除这条日记吗？")
                     .setPositiveButton("删除", (dialog, which) -> {
-                        dbHelper.deleteDiaryEntry(entry.getId());
+                        String currentUser = UserSession.getCurrentUserName(); // 获取当前登录用户名
+                        dbHelper.deleteDiaryEntry(entry.getId(), currentUser);  // 传用户名
                         diaryList.remove(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, diaryList.size());

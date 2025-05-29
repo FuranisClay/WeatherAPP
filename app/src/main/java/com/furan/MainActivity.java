@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements
     private void setupViewPager() {
         adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(6);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -532,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public int getItemCount() {
-            return 6; // 修复：应该返回6个页面，包括About页面
+            return 6;
         }
     }
 }
