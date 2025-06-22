@@ -40,7 +40,7 @@ public class WeatherCurrentFragment extends Fragment {
     private WeatherData cachedWeatherData = null;
     private String currentCity = "Shenyang"; // 默认城市
 
-    private boolean shouldRefresh = true; // 👉 新增：是否需要刷新标记
+    private boolean shouldRefresh = true; // 是否需要刷新标记
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,45 +62,9 @@ public class WeatherCurrentFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
         setupRecyclerView();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         if (shouldRefresh) {
             loadWeatherData();
             shouldRefresh = false;
-        }
-    }
-
-    private void setAqiBackgroundByText(String aqiText) {
-        int bgResId;
-        if (aqiText == null) {
-            bgResId = R.drawable.aqi_bg_unknown;
-        } else {
-            switch (aqiText) {
-                case "优":
-                    bgResId = R.drawable.aqi_bg_good;
-                    break;
-                case "良":
-                    bgResId = R.drawable.aqi_bg_moderate;
-                    break;
-                case "轻度污染":
-                    bgResId = R.drawable.aqi_bg_unhealthy_sensitive;
-                    break;
-                case "中度污染":
-                    bgResId = R.drawable.aqi_bg_unhealthy;
-                    break;
-                case "重度污染":
-                    bgResId = R.drawable.aqi_bg_very_unhealthy;
-                    break;
-                default:
-                    bgResId = R.drawable.aqi_bg_unknown;
-                    break;
-            }
-        }
-        if (tvAqi != null) {
-            tvAqi.setBackgroundResource(bgResId);
         }
     }
 
@@ -116,7 +80,7 @@ public class WeatherCurrentFragment extends Fragment {
         rvWeatherDetails = view.findViewById(R.id.rv_weather_details);
 
         btnRefresh.setOnClickListener(v -> {
-            shouldRefresh = true; // 👉 点击刷新按钮时，设置需要刷新
+            shouldRefresh = true;
             loadWeatherData();
         });
     }
@@ -133,26 +97,28 @@ public class WeatherCurrentFragment extends Fragment {
             if (tvLocation != null) {
                 tvLocation.setText(city);
             }
-            shouldRefresh = true; // 👉 城市切换，标记要刷新
+            shouldRefresh = true;
             loadWeatherData();
         }
     }
 
     private void loadWeatherData() {
-        mainHandler.post(() -> btnRefresh.setEnabled(false));
+        if (btnRefresh != null) {
+            mainHandler.post(() -> btnRefresh.setEnabled(false));
+        }
 
         executorService.execute(() -> {
             try {
                 WeatherData weatherData = apiService.getCurrentWeather(currentCity);
                 mainHandler.post(() -> {
-                    if (isAdded()) {
+                    if (isAdded() && weatherData != null) {
                         if (weatherData.equals(cachedWeatherData)) {
-                            btnRefresh.setEnabled(true);
+                            if (btnRefresh != null) btnRefresh.setEnabled(true);
                             return;
                         }
                         cachedWeatherData = weatherData;
                         updateUI(weatherData);
-                        btnRefresh.setEnabled(true);
+                        if (btnRefresh != null) btnRefresh.setEnabled(true);
                     }
                 });
             } catch (Exception e) {
@@ -160,7 +126,7 @@ public class WeatherCurrentFragment extends Fragment {
                 mainHandler.post(() -> {
                     if (isAdded()) {
                         Toast.makeText(requireContext(), "获取天气数据失败", Toast.LENGTH_SHORT).show();
-                        btnRefresh.setEnabled(true);
+                        if (btnRefresh != null) btnRefresh.setEnabled(true);
                     }
                 });
             }
@@ -206,10 +172,53 @@ public class WeatherCurrentFragment extends Fragment {
         ivWeatherIcon.setImageResource(iconRes);
     }
 
+    private void setAqiBackgroundByText(String aqiText) {
+        int bgResId;
+        String displayText;
+
+        if (aqiText == null) {
+            bgResId = R.drawable.aqi_bg_unknown;
+            displayText = "未知";
+        } else {
+            switch (aqiText) {
+                case "优":
+                    bgResId = R.drawable.aqi_bg_good;
+                    displayText = "优";
+                    break;
+                case "良":
+                    bgResId = R.drawable.aqi_bg_moderate;
+                    displayText = "良";
+                    break;
+                case "轻度污染":
+                    bgResId = R.drawable.aqi_bg_unhealthy_sensitive;
+                    displayText = "轻度污染";
+                    break;
+                case "中度污染":
+                    bgResId = R.drawable.aqi_bg_unhealthy;
+                    displayText = "中度污染";
+                    break;
+                case "重度污染":
+                    bgResId = R.drawable.aqi_bg_very_unhealthy;
+                    displayText = "重度污染";
+                    break;
+                default:
+                    bgResId = R.drawable.aqi_bg_unknown;
+                    displayText = "未知";
+                    break;
+            }
+        }
+
+        if (tvAqi != null) {
+            tvAqi.setBackgroundResource(bgResId);
+            tvAqi.setText(displayText);
+        }
+    }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        shouldRefresh = true; // 👉 防止视图销毁后不刷新
+        shouldRefresh = true;
         tvLocation = null;
         tvTemperature = null;
         tvWeatherDesc = null;
